@@ -17,8 +17,8 @@ from os.path import exists
 import httpx
 from bs4 import BeautifulSoup
 
-from Config import sites_adapters, markdown_dir, img_dir, hexo_head, hexo_head_enable, refer_article_enable, page_save, \
-    page_rewrite, webdriver_path
+from Config import sites_adapters, markdown_dir, hexo_head, hexo_head_enable, refer_article_enable, page_save, \
+    page_rewrite, webdriver_path, config_img_dir
 from Parser import Parser
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -36,9 +36,7 @@ class PageDown():
             os.makedirs(markdown_dir)
         pass
 
-        if not exists(img_dir):
-            os.makedirs(img_dir)
-        pass
+
 
     def download_page(self, url):
 
@@ -49,6 +47,10 @@ class PageDown():
         content = self.on_parse_before(content)
         # 解析标题和内容
         title, content = self.on_parse_title_content(soup, url)
+
+        if not exists(config_img_dir):
+            os.makedirs(config_img_dir)
+        pass
         # 解析HTML转换为MarkDown
         parser = Parser(content, title)
         content = ''.join(parser.outputs)

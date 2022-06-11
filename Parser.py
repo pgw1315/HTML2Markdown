@@ -11,14 +11,16 @@
 '''
 import datetime
 import os
+import time
 from os.path import exists
-from urllib.parse import urlparse
+from urllib.parse import urljoin
 
 import httpx
 import requests
 from bs4 import BeautifulSoup, Tag, NavigableString, Comment
 
-from Config import img_dir, img_src_list
+from Config import img_src_list, config_img_download, config_img_dir
+from Utils import download_img
 
 
 class Parser(object):
@@ -35,12 +37,10 @@ class Parser(object):
 
         self.equ_inline = False
         self.title = title
-        self.page_img_dir = img_dir + "/" + title
-        # 如果目录不存在创建目录
+        self.page_img_dir=config_img_dir+"/"+title
         if not exists(self.page_img_dir):
             os.makedirs(self.page_img_dir)
         pass
-
         self.recursive(self.soup)
 
     def remove_comment(self, soup):
@@ -131,45 +131,7 @@ class Parser(object):
             soup.contents.insert(0, NavigableString(' | '))
             pass
         elif tag == 'img':
-
-            alt = soup.attrs.get('alt', '')
-            src = ''
-            # 找不到图片
-            for img_src in img_src_list:
-                src = soup.attrs.get(img_src, '')
-                if  src.startswith("http"):
-                    break
-
-            # 获取文件后缀
-            up = urlparse(src)
-            _, file_suffix = os.path.splitext(os.path.basename(up.path))
-            # 用时间戳来作为文件名
-            ts = datetime.datetime.now().timestamp()
-            if file_suffix:
-                file_name = str(ts) + file_suffix
-            else:
-                file_name = str(ts) + '.jpg'
-            # 下载图片
-            if "csdn.net" in src:
-
-                file_path = self.page_img_dir + "/" + file_name
-                self.download_img(src, file_path)
-                code = '![{}]({})'.format(alt, "/images/" + file_name)
-                pass
-            elif "jianshu" in src:
-                src = "https:" + src
-                # 获取到链接中的文件名
-                self.download_img(src, self.page_img_dir + "/" + file_name)
-                code = '![{}]({})'.format(alt, "/images/" + self.title + "/" + file_name)
-                pass
-            else:
-                if src:
-                    # 获取到链接中的文件名
-                    self.download_img(src, self.page_img_dir + "/" + file_name)
-                    code = '![{}]({})'.format(alt, "/images/" + self.title + "/" + file_name)
-                else:
-                    code='![{}]({})'
-                pass
+            code = self.process_img(soup)
             self.outputs.append('\n' + code)
         elif tag == 'br':
             soup.contents.insert(0, NavigableString('\n+ '))
@@ -177,26 +139,33 @@ class Parser(object):
             pass
         pass
 
-    def download_img(self, url, file_path):
-
-        response = httpx.get(url)
-        path = ""
-        if response.status_code == 200:
-            try:
-                f = open(file_path, 'wb')
-                f.write(response.content)
-                f.close()
-                path = file_path
-            except Exception as e:
-                path = ""
-                pass
-        return path
-
     def remove_empty_lines(self, soup):
         for content in soup.contents:
             if content == "\n":
                 soup.contents.remove(content)
         pass
+
+    def process_img(self, soup):
+        alt = soup.attrs.get('alt', '')
+        img_url = ''
+        code = ""
+        for img_src in img_src_list:
+            img_url = soup.attrs.get(img_src, '')
+            if img_url.startswith("http") or img_url.startswith("/"):
+                break
+        # 找不到图片
+        if not img_url:
+            return code
+        # 不下载图片，引用原图片
+        if not config_img_download:
+            code = '![{}]({})'.format(alt, img_url)
+            return code
+
+        # 下载图片
+        img_url = urljoin("https://", img_url)
+        file_name = download_img(img_url, self.page_img_dir)
+        code = '![{}]({})'.format(alt, "/images/" + self.title + "/" + file_name)
+        return code
 
 
 if __name__ == '__main__':

@@ -1,16 +1,21 @@
 # 默认下载目录
 markdown_dir = "/Users/will/Blog/pgw1315.github.io/source/_posts"
-img_dir = "/Users/will/Blog/pgw1315.github.io/source/images"
-webdriver_path=r"/Users/will/PycharmProjects/HTML2Markdown/chromedriver"
+
+webdriver_path = r"/Users/will/PycharmProjects/HTML2Markdown/chromedriver"
 # markdown_dir = "markdown"
 # img_dir = "markdown/img"
+# 图片配置
+config_img_download = True
+# 使用原来图片的站点
+config_use_original_image_domain = ["jianshu.com"]
+config_img_dir = "/Users/will/Blog/pgw1315.github.io/source/images"
 # Hexo主题的头信息
 hexo_head_enable = True
 hexo_head = """---
 title: {title}
 date: {date_time}
 author: Will
-img: /images/default.jpeg
+img: /images/banner/default.jpeg
 categories: {categories}
 tags:
   - Python
@@ -23,7 +28,7 @@ page_save = True
 # 如果文章存在是否覆盖
 page_rewrite = False
 
-img_src_list = ["src","data-original-src","data-src"]
+img_src_list = ["src", "data-original-src", "data-src"]
 sites_adapters = [
     # 适配cnblogs
     {
