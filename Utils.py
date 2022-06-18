@@ -37,8 +37,8 @@ def download_img(url, img_dir='.', file_path=None):
             else:
                 file_name = str(int(time.time()))
             n_name = file_name.split('.')[:-1]
-            if  n_name:
-                file_name='.'.join(n_name)
+            if n_name:
+                file_name = '.'.join(n_name)
 
             file_path = img_dir + '/' + file_name + '.' + file_type
             path = file_name + '.' + file_type

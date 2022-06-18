@@ -6,6 +6,7 @@ webdriver_path = r"/Users/will/PycharmProjects/HTML2Markdown/chromedriver"
 # img_dir = "markdown/img"
 # 图片配置
 config_img_download = True
+
 # 使用原来图片的站点
 config_use_original_image_domain = ["jianshu.com"]
 config_img_dir = "/Users/will/Blog/pgw1315.github.io/source/images"
@@ -109,6 +110,14 @@ sites_adapters = [
         "title_attrs": {'class': "article-title"},
         "content_tag": "div",
         "content_attrs": {'class': 'J-articleContent'},
+
+    }, {
+        #
+        "domain": "ipcpu.com",
+        "title_tag": "h1",
+        "title_attrs": {'class': "article-title"},
+        "content_tag": "article",
+        "content_attrs": {'class': 'article-content'},
 
     },
 
