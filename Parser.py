@@ -19,12 +19,27 @@ import httpx
 import requests
 from bs4 import BeautifulSoup, Tag, NavigableString, Comment
 
-from Config import img_src_list, config_img_download, config_img_dir
-from Utils import download_img
+
+from Utils import download_img, yaml_config_load
 
 
 class Parser(object):
+    def init_config(self):
+        self.cfg = yaml_config_load('config.yaml').get('config')
+        # 判断是否为hexo文章
+        self.hexo_enable = self.cfg.get('hexo').get('enable')
+        if self.hexo_enable:
+            # Hexo博客文章
+            self.img_dir = self.cfg.get('hexo').get('img_dir')
+        else:
+            # 普通Markdown
+            self.img_dir = self.cfg.get('image').get('dir')
+        # 图片src属性适配
+        self.img_src_list = self.cfg.get('image').get('src_list')
+        pass
+
     def __init__(self, html, title):
+        self.init_config()
         self.special_characters = {
             "&lt;": "<", "&gt;": ">", "&nbsp;": " ", "&nbsp": " ",
             "&#8203": "",
@@ -38,7 +53,7 @@ class Parser(object):
 
         self.equ_inline = False
         self.title = title
-        self.page_img_dir = config_img_dir+"/"+title
+        self.page_img_dir = self.img_dir+"/"+title
         if not exists(self.page_img_dir):
             os.makedirs(self.page_img_dir)
         pass
@@ -153,7 +168,7 @@ class Parser(object):
         alt = soup.attrs.get('alt', '')
         img_url = ''
         code = ""
-        for img_src in img_src_list:
+        for img_src in self.img_src_list:
             img_url = soup.attrs.get(img_src, '')
             if img_url.startswith("http") or img_url.startswith("/"):
                 break
@@ -161,9 +176,9 @@ class Parser(object):
         if not img_url:
             return code
         # 不下载图片，引用原图片
-        if not config_img_download:
-            code = '![{}]({})'.format(alt, img_url)
-            return code
+        # if not config_img_download:
+        #     code = '![{}]({})'.format(alt, img_url)
+        #     return code
 
         # 下载图片
         img_url = urljoin("https://", img_url)

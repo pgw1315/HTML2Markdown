@@ -14,6 +14,7 @@
 import os
 import datetime
 from os.path import exists
+import re
 import sys
 import httpx
 from bs4 import BeautifulSoup
@@ -76,10 +77,9 @@ class PageDown():
         content = self.parse_before(content)
         # 解析标题和内容
         title, content = self.parse_title_content(soup, url)
-        print(content)
         # 解析HTML转换为MarkDown
-        # parser = Parser(content, title)
-        # content = ''.join(parser.outputs)
+        parser = Parser(content, title)
+        content = ''.join(parser.outputs)
         # 解析完成
         content = self.parse_complete(url, title, content)
         # 保存
@@ -111,7 +111,7 @@ class PageDown():
 
         # 替换标题中的特殊字符特殊字符
         title = format_special_characters(title)
-        return title, html
+        return title, str(html)
 
     def parse_before(self, content):
 
@@ -119,8 +119,7 @@ class PageDown():
 
     def parse_complete(self, url, title, content):
         # 替换多余的空格
-        content = content.replace(r"\n{2,}", "\n\n")
-
+        content = re.sub('\n{2,}', '\n\n', content)
         # 添加头信息
         if self.hexo_enable:
             x = datetime.datetime.now()

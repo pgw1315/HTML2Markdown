@@ -7,6 +7,10 @@ config:
   image: 
     download: true
     dir: /Users/will/Downloads/Markdown/images
+    src_list: 
+      - src
+      - data-original-src
+      - data-src
 
   # hexo主题文章相关
   hexo: 
