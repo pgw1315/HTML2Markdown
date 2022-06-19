@@ -32,19 +32,21 @@ class Parser(object):
         self.html = html
         # 不解析的标签
         self.ignore_tags = ['title', 'style', 'script']
-        self.soup = BeautifulSoup(html, 'html.parser')
+
+        self.soup = BeautifulSoup(self.html, 'html.parser')
         self.outputs = []
 
         self.equ_inline = False
         self.title = title
-        self.page_img_dir=config_img_dir+"/"+title
+        self.page_img_dir = config_img_dir+"/"+title
         if not exists(self.page_img_dir):
             os.makedirs(self.page_img_dir)
         pass
         self.recursive(self.soup)
 
     def remove_comment(self, soup):
-        if not hasattr(soup, 'children'): return
+        if not hasattr(soup, 'children'):
+            return
         for c in soup.children:
             if isinstance(c, Comment):
                 c.extract()
@@ -66,7 +68,8 @@ class Parser(object):
         elif isinstance(soup, Tag):
             self.on_headle_elements(soup)
         # 判断是否还有子节点，如果没有直接退出
-        if not hasattr(soup, 'children'): return
+        if not hasattr(soup, 'children'):
+            return
         # 如果有子节点则遍历
         for child in soup.children:
             self.recursive(child)
@@ -83,7 +86,8 @@ class Parser(object):
             soup.contents.append(NavigableString('\n'))
         elif tag == 'a' and 'href' in soup.attrs:
             soup.contents.insert(0, NavigableString('['))
-            soup.contents.append(NavigableString("]({})".format(soup.attrs['href'])))
+            soup.contents.append(NavigableString(
+                "]({})".format(soup.attrs['href'])))
         elif tag in ['b', 'strong']:
             soup.contents.insert(0, NavigableString('**'))
             soup.contents.append(NavigableString('**'))
@@ -164,7 +168,8 @@ class Parser(object):
         # 下载图片
         img_url = urljoin("https://", img_url)
         file_name = download_img(img_url, self.page_img_dir)
-        code = '![{}]({})'.format(alt, "/images/" + self.title + "/" + file_name)
+        code = '![{}]({})'.format(alt, "/images/" +
+                                  self.title + "/" + file_name)
         return code
 
 
@@ -219,5 +224,5 @@ if __name__ == '__main__':
      </table>
      
      """
-    parser = Parser(html)
+    parser = Parser(html, '')
     print(''.join(parser.outputs))

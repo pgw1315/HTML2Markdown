@@ -1,3 +1,11 @@
+'''
+Author: will
+Date: 2022-06-12 04:30:33
+LastEditTime: 2022-06-19 12:23:52
+FilePath: /HTML2Markdown/Utils.py
+Description: 
+
+'''
 # !/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 '''
@@ -9,12 +17,14 @@
 @说明 :   工具类
 
 '''
+
+
+
+
 import time
 from urllib.parse import urlparse
-
 import httpx
-
-
+import yaml
 def download_img(url, img_dir='.', file_path=None):
     """
     下载图片到本地
@@ -53,3 +63,34 @@ def download_img(url, img_dir='.', file_path=None):
             pass
 
     return path
+
+
+def yaml_config_load(path):
+    """
+    加载yaml项目配置文件
+    """
+    config_list = []
+    with open(path, 'rb') as f:
+        # yaml文件通过---分节，多个节组合成一个列表
+        config = yaml.safe_load_all(f)
+        config_list = list(config)
+        pass
+    return dict(config_list[0])
+
+
+def format_special_characters(str, separator='_'):
+    """
+    格式化特殊字符
+    """
+    if not str:
+        return ''
+
+    special_chars = ['*', '?', '\\', '/', '<', '>', ':', '"']
+    for schar in special_chars:
+        str = str.replace(schar, separator)
+    return str
+
+
+if __name__ == '__main__':
+    l = yaml_config_load('config.yaml')
+    print(l.get('md_dir'))

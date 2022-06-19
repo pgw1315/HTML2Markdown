@@ -1,0 +1,85 @@
+# 配置文件
+config: 
+  md_dir: /Users/will/Downloads/Markdown
+  webdriver_path: /Users/will/PycharmProjects/HTML2Markdown/chromedriver
+
+  # 图片相关
+  image: 
+    download: true
+    dir: /Users/will/Downloads/Markdown/images
+
+  # hexo主题文章相关
+  hexo: 
+    enable: false
+    # 文章所在目录
+    post_dir: /Users/will/Blog/pgw1315.github.io/source/_posts
+    # 图片所在目录
+    img_dir: /Users/will/Blog/pgw1315.github.io/source/images
+    content: |
+      ---
+      title: {title}
+      date: {date_time}
+      author: Will
+      img: /images/banner/default.jpeg
+      categories: {categories}
+      tags:
+        - Python
+      ---
+  # 页面的设置
+  page: 
+    # 是否保存文章true为保存，false则不保存文章
+    save: true
+    # 如果文章存在是否覆盖，true为覆盖，false为不覆盖
+    rewrite: false
+    # 是否在文章的末尾添加参考文章链接
+    refer: true
+  # 使用js动态加载的网站
+  js_load:
+    - juejin.cn
+  # 站点适配器，对不同的网站的内容和标题进行适配
+  adapters: 
+    # CSND站点
+    - domain: csdn.net
+      title: h1,class,title-article
+      content: div,id,content_views
+    # cnblogs 站点
+    - domain: cnblogs.com
+      title: a,id,cb_post_title_url
+      content: div,id,cnblogs_post_body
+    # 简书
+    - domain: jianshu.com
+      title: h1,class,_1RuRku
+      content: article,class,_2rhmJa
+    # 程序员客栈
+    - domain: proginn.com
+      title: h1,id,topic_title
+      content: div,class,rich_media_content
+    # 掘金
+    - domain: juejin.cn
+      title: h1,class,article-title
+      content: div,class,article-content
+    # segmentfault
+    - domain: segmentfault
+      title: 
+      content: article,class,article
+    # 知乎
+    - domain: zhihu.com
+      title: h1,class,Post-Title
+      content: div,class,Post-RichTextContainer
+    # itpub
+    - domain: itpub.net
+      title: div,class,tit
+      content: div,class,content
+    # 微信公众号
+    - domain: weixin.qq.com
+      title: h1,class,rich_media_title
+      content: div,class,rich_media_content
+    # 腾讯云
+    - domain: cloud.tencent.com
+      title: h1,class,article-title
+      content: div,class,J-articleContent
+    # ipcpu
+    - domain: ipcpu.com
+      title: h1,class,article-title
+      content: article,class,article-content
+    
