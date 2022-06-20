@@ -22,20 +22,23 @@ from bs4 import BeautifulSoup, Tag, NavigableString, Comment
 
 from Utils import download_img, yaml_config_load
 
+current_work_dir = os.path.dirname(__file__)  # 当前文件所在的目录
+
 
 class Parser(object):
     def init_config(self):
-        self.cfg = yaml_config_load('config.yaml').get('config')
+        config_path = os.path.join(current_work_dir, 'config.yaml')
+        self.cfg = yaml_config_load(config_path).get('config')
         # 判断是否为hexo文章
-        self.hexo_enable = self.cfg.get('hexo').get('enable')
+        self.hexo_enable = self.cfg['hexo']['enable']
         if self.hexo_enable:
             # Hexo博客文章
-            self.img_dir = self.cfg.get('hexo').get('img_dir')
+            self.img_dir = self.cfg['hexo']['img_dir']
         else:
             # 普通Markdown
-            self.img_dir = self.cfg.get('image').get('dir')
+            self.img_dir = self.cfg['image']['dir']
         # 图片src属性适配
-        self.img_src_list = self.cfg.get('image').get('src_list')
+        self.img_src_list = self.cfg['image']['src_list']
         pass
 
     def __init__(self, html, title):
