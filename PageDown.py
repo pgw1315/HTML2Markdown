@@ -78,7 +78,7 @@ class PageDown():
         # 解析标题和内容
         title, content = self.parse_title_content(soup, url)
         # 解析HTML转换为MarkDown
-        parser = Parser(content, title)
+        parser = Parser(content, title, url)
         content = ''.join(parser.outputs)
         # 解析完成
         content = self.parse_complete(url, title, content)

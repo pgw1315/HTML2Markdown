@@ -38,21 +38,23 @@ class Parser(object):
         self.img_src_list = self.cfg.get('image').get('src_list')
         pass
 
-    def __init__(self, html, title):
+    def __init__(self, html, title, url=''):
+
+        self.html = html
+        self.title = title
+        self.url = url
+
         self.init_config()
         self.special_characters = {
             "&lt;": "<", "&gt;": ">", "&nbsp;": " ", "&nbsp": " ",
             "&#8203": "",
         }
-        self.html = html
         # 不解析的标签
         self.ignore_tags = ['title', 'style', 'script']
 
         self.soup = BeautifulSoup(self.html, 'html.parser')
         self.outputs = []
-
         self.equ_inline = False
-        self.title = title
         self.page_img_dir = self.img_dir+"/"+title
         if not exists(self.page_img_dir):
             os.makedirs(self.page_img_dir)
@@ -181,7 +183,7 @@ class Parser(object):
         #     return code
 
         # 下载图片
-        img_url = urljoin("https://", img_url)
+        img_url = urljoin(self.url, img_url)
         file_name = download_img(img_url, self.page_img_dir)
         code = '![{}]({})'.format(alt, "/images/" +
                                   self.title + "/" + file_name)
