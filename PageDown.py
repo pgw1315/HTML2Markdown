@@ -25,6 +25,9 @@ from selenium.webdriver.chrome.service import Service
 from Utils import format_special_characters, yaml_config_load
 
 
+current_work_dir = os.path.dirname(__file__)  # 当前文件所在的目录
+
+
 class PageDown():
 
     '''
@@ -34,29 +37,32 @@ class PageDown():
     '''
 
     def init_config(self):
-
-        self.cfg = yaml_config_load('config.yaml').get('config')
-        self.webdriver_path = self.cfg.get('webdriver_path')
+        # 配置文件路径
+        config_path = os.path.join(current_work_dir, 'config.yaml')
+        self.cfg = yaml_config_load(config_path)['config']
+        # self.webdriver_path = self.cfg.get('webdriver_path')
+        # 浏览器驱动路径
+        self.webdriver_path = os.path.join(current_work_dir, 'chromedriver')
         # 判断是否为hexo文章
-        self.hexo_enable = self.cfg.get('hexo').get('enable')
+        self.hexo_enable = self.cfg['hexo']['enable']
         if self.hexo_enable:
             # Hexo博客文章
-            self.md_dir = self.cfg.get('hexo').get('post_dir')
-            self.img_dir = self.cfg.get('hexo').get('img_dir')
-            self.hexo_head = self.cfg.get('hexo').get('content')
+            self.md_dir = self.cfg['hexo']['post_dir']
+            self.img_dir = self.cfg['hexo']['img_dir']
+            self.hexo_head = self.cfg['hexo']['content']
         else:
             # 普通Markdown
-            self.md_dir = self.cfg.get('md_dir')
-            self.img_dir = self.cfg.get('image').get('dir')
+            self.md_dir = self.cfg['md_dir']
+            self.img_dir = self.cfg['image']['dir']
             self.hexo_head = ''
 
-        self.page_rewrite = self.cfg.get('page').get('rewrite')
-        self.page_save = self.cfg.get('page').get('save')
-        self.page_refer = self.cfg.get('page').get('refer')
+        self.page_rewrite = self.cfg['page']['rewrite']
+        self.page_save = self.cfg['page']['save']
+        self.page_refer = self.cfg['page']['refer']
 
-        self.adapters = self.cfg.get('adapters')
+        self.adapters = self.cfg['adapters']
         # 使用浏览器加载页面
-        self.js_load_list = self.cfg.get('js_load')
+        self.js_load_list = self.cfg['js_load']
 
     def __init__(self):
         self.init_config()
