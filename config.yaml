@@ -63,9 +63,9 @@ config:
       title: h1,class,article-title
       content: div,class,article-content
     # segmentfault
-    - domain: segmentfault
+    - domain: segmentfault.com
       title: 
-      content: article,class,article
+      content: article,class,article-content
     # 知乎
     - domain: zhihu.com
       title: h1,class,Post-Title

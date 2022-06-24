@@ -13,7 +13,7 @@ import datetime
 import os
 import time
 from os.path import exists
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import httpx
 import requests
@@ -53,7 +53,7 @@ class Parser(object):
             "&#8203": "",
         }
         # 不解析的标签
-        self.ignore_tags = ['title', 'style', 'script']
+        self.ignore_tags = ['title', 'style', 'script', 'nav']
 
         self.soup = BeautifulSoup(self.html, 'html.parser')
         self.outputs = []
@@ -86,6 +86,9 @@ class Parser(object):
             self.outputs.append(soup.string)
         # 处理元素节点
         elif isinstance(soup, Tag):
+            # 如果是忽略的标签直接跳过
+            if soup.name in self.ignore_tags:
+                return
             self.on_headle_elements(soup)
         # 判断是否还有子节点，如果没有直接退出
         if not hasattr(soup, 'children'):
@@ -186,7 +189,9 @@ class Parser(object):
         #     return code
 
         # 下载图片
-        img_url = urljoin(self.url, img_url)
+        o = urlparse(self.url)
+        host = o.scheme+"://"+o.hostname
+        img_url = urljoin(host, img_url)
         file_name = download_img(img_url, self.page_img_dir)
         code = '![{}]({})'.format(alt, "/images/" +
                                   self.title + "/" + file_name)
@@ -196,52 +201,15 @@ class Parser(object):
 if __name__ == '__main__':
     # html = '<body><!-- cde --><h1>This is 1 &lt;= 2<!-- abc --> <b>title</b></h1><p><a href="www.hello.com">hello</a></p><b>test</b>'
     html = """ 
-     <table>
-        <tbody>
-            <tr>
-                <td>命令</td>
-                <td>功能说明</td>
-                <td>功能说明</td>
-                <td>功能说明</td>
-                <td>功能说明</td>
-            </tr>
+     <div>
+        <nav>
+            <ol>nanananna</ol>
             
-            
-            
-            <tr>
-                <td>CD</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-            </tr>
-            <tr>
-                <td>CD</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-            </tr>
-            
-            
-            
-            
-            <tr>
-                <td>CD</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-            </tr>
-            <tr>
-                <td>CD</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-                <td>切换目录</td>
-            </tr>
-        </tbody>
-     </table>
+        </nav>
+        <div>
+            内容
+        </div>
+     </div>
      
      """
     parser = Parser(html, '')

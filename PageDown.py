@@ -31,7 +31,7 @@ current_work_dir = os.path.dirname(__file__)  # 当前文件所在的目录
 class PageDown():
 
     '''
-    描述: 
+    描述:
     param {*} self
     return {*}
     '''
@@ -97,19 +97,24 @@ class PageDown():
         html = ''
         for adapter in self.adapters:
             if adapter['domain'] in url:
-                # 分割配置中的选择器信息
-                t_sel = adapter.get('title', '').split(',')
-                c_sel = adapter.get('content', '').split(',')
 
+                # 尝试获取标题
                 try:
-
+                    t_sel = adapter.get('title', '').split(',')
                     # 获取标题
                     title = soup.find(t_sel[0], {t_sel[1]: t_sel[2]}).text
+
+                except:
+                    pass
+                # 尝试获取内容
+                try:
+
+                    c_sel = adapter.get('content', '').split(',')
                     # 获取内容
                     html = soup.find(c_sel[0], {c_sel[1]: c_sel[2]})
                 except:
                     pass
-            break
+                break
 
         # 没有适配
         title = title if title else soup.title.text
@@ -117,6 +122,7 @@ class PageDown():
 
         # 替换标题中的特殊字符特殊字符
         title = format_special_characters(title)
+        title = title.replace(' ', '')
         return title, str(html)
 
     def parse_before(self, content):

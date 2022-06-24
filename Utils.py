@@ -3,7 +3,7 @@ Author: will
 Date: 2022-06-12 04:30:33
 LastEditTime: 2022-06-19 12:23:52
 FilePath: /HTML2Markdown/Utils.py
-Description: 
+Description:
 
 '''
 # !/usr/bin/env python3
@@ -36,7 +36,13 @@ def download_img(url, img_dir='.', file_path=None):
     try:
         response = httpx.get(url)
         path = ""
-        if response.status_code == 200:
+        # 如果返回302自动跳转
+        if response.status_code == 302:
+            l = response.headers.get('location')
+            if l:
+                return download_img(l, img_dir, file_path)
+            pass
+        elif response.status_code == 200:
             # 判断是否有传入的文件名，如果没有，则使用当前的时间戳生成一个文件名
             file_type = response.headers.get("content-type").split('/')[1]
             if not file_path:
@@ -95,5 +101,5 @@ def format_special_characters(str, separator='_'):
 
 
 if __name__ == '__main__':
-    l = yaml_config_load('config.yaml')
-    print(l.get('md_dir'))
+    url = 'https://segmentfault.com/img/remote/1460000021654930'
+    download_img(url)
