@@ -14,6 +14,22 @@ HTML2Markdown工具为将网页导出为Markdown文件，目前支持CSDN，知�
 + [itpub.net](itpub.net)
 + [weixin.qq.com](weixin.qq.com)
 
+### 环境配置
+安装python3
+
+```shell
+#安装epel
+ wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+ #安装python36
+ yum install python36 -y
+ #安装pip3
+ yum install python36-pip -y
+ #安装python开发工具
+ yum install python36-devel -y
+
+```
+
+
 ### 安装必要的扩展包
 
 ```shell
