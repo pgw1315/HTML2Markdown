@@ -1,4 +1,4 @@
-# HTML2Markdown 更改了
+# HTML2Markdown
 
 HTML2Markdown工具为将网页导出为Markdown文件，目前支持CSDN，知乎等文章直接导出，并生成支持Hexo博客的文章。
 
@@ -17,10 +17,17 @@ HTML2Markdown工具为将网页导出为Markdown文件，目前支持CSDN，知�
 ### 安装必要的扩展包
 
 ```shell
-pip install httpx
-pip install requests
-pip install BeautifulSoup
-pip install selenium
+pip3 install httpx
+pip3 install requests
+pip3 install pyyaml
+pip3 install selenium
+pip3 install beautifulsoup4
+```
+
+### 使用方法
+
+```shell
+ python3 PageDown.py
 ```
 
 
