@@ -6,6 +6,8 @@ FilePath: /HTML2Markdown/Utils.py
 Description:
 
 '''
+import os
+
 # !/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 '''
@@ -25,6 +27,28 @@ import time
 from urllib.parse import urlparse
 import httpx
 import yaml
+
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+
+current_work_dir = os.path.dirname(__file__)  # 当前文件所在的目录
+def broser_load( url):
+    # 使用浏览器加载页面
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument('--disable-gpu')
+    # 禁止沙箱模式，否则肯能会报错遇到chrome异常
+    chrome_options.add_argument('--no-sandbox')
+    brower = webdriver.Chrome(service=Service(os.path.join(current_work_dir, 'chromedriver')),
+                              options=chrome_options)
+    brower.get(url)
+    brower.implicitly_wait(10)
+    content = brower.page_source
+    brower.quit()
+    return content
+
 def download_img(url, img_dir='.', file_path=None):
     """
     下载图片到本地

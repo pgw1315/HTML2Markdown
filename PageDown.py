@@ -1,5 +1,6 @@
 # !/usr/bin/env python3
-# -*- encoding: utf-8 -*-
+# -*- coding: UTF-8 -*-
+
 '''
 @项目 :  HTML2Markdown
 @文件 :  PageDown.py
@@ -19,9 +20,6 @@ import sys
 import httpx
 from bs4 import BeautifulSoup
 from Parser import Parser
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from Utils import format_special_characters, yaml_config_load
 
 
@@ -66,18 +64,18 @@ class PageDown():
 
     def __init__(self):
         self.init_config()
-        # 如果目录不存在创建目录
-        if not exists(self.md_dir):
-            os.makedirs(self.md_dir)
-        pass
-        if not exists(self.img_dir):
-            os.makedirs(self.img_dir)
-        pass
+        # # 如果目录不存在创建目录
+        # if not exists(self.md_dir):
+        #     os.makedirs(self.md_dir)
+        # pass
+        # if not exists(self.img_dir):
+        #     os.makedirs(self.img_dir)
+        # pass
 
     def download_page(self, url):
 
         # 加载内容
-        content = self.load_page(url)
+        content = httpx.get(url).content
         soup = BeautifulSoup(content, 'html.parser', from_encoding="utf-8")
         # 解析之前调用
         content = self.parse_before(content)
@@ -163,28 +161,9 @@ class PageDown():
             exit()
         return content
 
-    def broser_load(self, url):
-        # 使用浏览器加载页面
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument('--disable-gpu')
-        # 禁止沙箱模式，否则肯能会报错遇到chrome异常
-        chrome_options.add_argument('--no-sandbox')
-        brower = webdriver.Chrome(service=Service(self.webdriver_path),
-                                  options=chrome_options)
-        brower.get(url)
-        brower.implicitly_wait(10)
-        content = brower.page_source
-        brower.quit()
-        return content
 
-    def load_page(self, url):
-        # 判断是否使用浏览器动态加载
-        for domain in self.js_load_list:
-            if domain in url:
-                return self.broser_load(url)
 
-        return httpx.get(url).content
+
 
 
 if __name__ == '__main__':
@@ -196,11 +175,12 @@ if __name__ == '__main__':
             url = cmd_arg
     # 要求用户输入文章地址
     if not url:
-        url = input("请输入文章地址：")
+        url = input("请输入文章地址")
         if not url or not url.startswith('http'):
             print("文章地址为或者格式不正确!!")
             exit()
         pass
+    # 初始化目录
 
     pd = PageDown()
     pd.download_page(url)
