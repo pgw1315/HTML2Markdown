@@ -87,4 +87,7 @@ config:
     - domain: ipcpu.com
       title: h1,class,article-title
       content: article,class,article-content
-    
+    # pdai.tech
+    - domain: pdai.tech
+      title: h1,class,header-anchor
+      content: div,class,theme-default-content
