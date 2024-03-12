@@ -30,13 +30,13 @@ class Parser(object):
         config_path = os.path.join(current_work_dir, 'config.yaml')
         self.cfg = yaml_config_load(config_path).get('config')
         # 判断是否为hexo文章
-        self.hexo_enable = self.cfg['hexo']['enable']
+        self.hexo_enable = self.cfg['hexo_enable']
         if self.hexo_enable:
             # Hexo博客文章
             self.img_dir = self.cfg['hexo']['img_dir']
         else:
             # 普通Markdown
-            self.img_dir = self.cfg['image']['dir']
+            self.img_dir = self.cfg['markdown']['img_dir']
         # 图片src属性适配
         self.img_src_list = self.cfg['image']['src_list']
         pass
