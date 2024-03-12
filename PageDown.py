@@ -13,6 +13,7 @@
 
 import os
 import datetime
+import platform
 from os.path import exists
 import re
 import sys
@@ -148,6 +149,12 @@ class PageDown():
 
     def save(self, title, content):
         # MarkDown文件名
+        os = platform.system()
+        if os == "Windows":
+            # 文件名不能包含以下字符：< > : " / \ | ? *。
+            invalid_chars = '<>:"/\\|?*'
+            for char in invalid_chars:
+                title = title.replace(title, char, "-")
         md_file = self.md_dir + "/" + title + '.md'
         if exists(md_file) and not self.page_rewrite:
             print('文章已经存在: {}'.format(md_file))
