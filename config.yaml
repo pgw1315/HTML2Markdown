@@ -1,20 +1,12 @@
 # 配置文件
-config: 
-  md_dir: /Users/will/Downloads/Markdown
-  # webdriver_path: /Users/will/PycharmProjects/HTML2Markdown/chromedriver
-
-  # 图片相关
-  image: 
-    download: true
-    dir: /Users/will/Downloads/Markdown/images
-    src_list: 
-      - src
-      - data-original-src
-      - data-src
-
+config:
+  hexo_enable: true
+   # markdown相关
+  markdown:
+    post_dir: /Users/will/Downloads/Markdown
+    img_dir: /Users/will/Downloads/Markdown/images
   # hexo主题文章相关
-  hexo: 
-    enable: true
+  hexo:
     # 文章所在目录
     post_dir: /Users/will/Blog/pgw1315.github.io/source/_posts
     # 图片所在目录
@@ -29,6 +21,15 @@ config:
       tags:
         - Python
       ---
+
+  # 图片相关
+  image: 
+    download: true
+    src_list: 
+      - src
+      - data-original-src
+      - data-src
+
   # 页面的设置
   page: 
     # 是否保存文章true为保存，false则不保存文章
@@ -86,4 +87,7 @@ config:
     - domain: ipcpu.com
       title: h1,class,article-title
       content: article,class,article-content
-    
+    # pdai.tech
+    - domain: pdai.tech
+      title: h1,class,header-anchor
+      content: div,class,theme-default-content
