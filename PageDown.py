@@ -214,3 +214,4 @@ if __name__ == '__main__':
 
     pd = PageDown()
     pd.download_page(url)
+    os.startfile(pd.md_dir)
