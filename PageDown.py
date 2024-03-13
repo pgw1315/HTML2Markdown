@@ -45,7 +45,7 @@ class PageDown():
         # 浏览器驱动路径
         self.webdriver_path = os.path.join(current_work_dir, 'chromedriver')
         # 判断是否为hexo文章
-        self.hexo_enable = self.cfg['hexo']['enable']
+        self.hexo_enable = self.cfg['hexo_enable']
         if self.hexo_enable:
             # Hexo博客文章
             self.md_dir = self.cfg['hexo']['post_dir']
@@ -53,8 +53,8 @@ class PageDown():
             self.hexo_head = self.cfg['hexo']['content']
         else:
             # 普通Markdown
-            self.md_dir = self.cfg['md_dir']
-            self.img_dir = self.cfg['image']['dir']
+            self.md_dir = self.cfg['markdown']['post_dir']
+            self.img_dir = self.cfg['markdown']['img_dir']
             self.hexo_head = ''
 
         self.page_rewrite = self.cfg['page']['rewrite']
@@ -64,7 +64,7 @@ class PageDown():
         self.adapters = self.cfg['adapters']
         # 使用浏览器加载页面
         self.js_load_list = self.cfg['js_load']
-        self.markdown_toc = self.cfg['markdown']['toc']
+        self.markdown_toc = self.cfg['markdown']['toc_enable']
 
     def __init__(self):
         self.init_config()
@@ -157,7 +157,7 @@ class PageDown():
             # 文件名不能包含以下字符：< > : " / \ | ? *。
             invalid_chars = '<>:"/\\|?*'
             for char in invalid_chars:
-                title = title.replace(title, char, "-")
+                title = title.replace(char, "-")
         md_file = self.md_dir + "/" + title + '.md'
         if exists(md_file) and not self.page_rewrite:
             print('文章已经存在: {}'.format(md_file))
