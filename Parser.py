@@ -149,7 +149,6 @@ class Parser(object):
                 mthead += "--- |"
             mthead += '\n'
             soup.contents.insert(1, NavigableString('%s' % mthead))
-            hexo
             pass
         elif tag == 'tr':
             self.remove_empty_lines(soup)
@@ -165,7 +164,7 @@ class Parser(object):
             soup.contents.insert(0, NavigableString('> '))
             soup.contents.append(NavigableString('\n'))
         elif tag == 'br':
-            soup.contents.insert(0, NavigableString('\n+ '))
+            soup.contents.insert(0, NavigableString('\n'))
         else:
             pass
         pass
