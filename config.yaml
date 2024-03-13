@@ -5,6 +5,8 @@ config:
   markdown:
     post_dir: /Users/will/Downloads/Markdown
     img_dir: /Users/will/Downloads/Markdown/images
+    # 是否添加TOC导航
+    toc_enable: True
   # hexo主题文章相关
   hexo:
     # 文章所在目录

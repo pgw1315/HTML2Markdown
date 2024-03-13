@@ -64,6 +64,7 @@ class PageDown():
         self.adapters = self.cfg['adapters']
         # 使用浏览器加载页面
         self.js_load_list = self.cfg['js_load']
+        self.markdown_toc = self.cfg['markdown']['toc']
 
     def __init__(self):
         self.init_config()
@@ -140,6 +141,8 @@ class PageDown():
             head_format = self.hexo_head.format(
                 title=title, date_time=date_time, categories="")
             content = head_format + content
+        if self.markdown_toc:
+            content = '[toc_enable]\n' + content
 
         # 添加参考文章
         if self.page_refer:
