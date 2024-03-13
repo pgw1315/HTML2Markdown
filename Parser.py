@@ -161,6 +161,9 @@ class Parser(object):
         elif tag == 'img':
             code = self.process_img(soup)
             self.outputs.append('\n' + code)
+        elif tag == 'blockquote':
+            soup.contents.insert(0, NavigableString('> '))
+            soup.contents.append(NavigableString('\n'))
         elif tag == 'br':
             soup.contents.insert(0, NavigableString('\n+ '))
         else:
