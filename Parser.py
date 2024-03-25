@@ -119,7 +119,12 @@ class Parser(object):
             soup.contents.insert(0, NavigableString('*'))
             soup.contents.append(NavigableString('*'))
         elif tag == 'pre':
-            soup.contents.insert(0, NavigableString('\n```\n'))
+            # 语言
+            language = self.extract_language(soup)
+            if language is None:
+                soup.contents.insert(0, NavigableString('\n```\n'))
+            else:
+                soup.contents.insert(0, NavigableString('\n```' + language + '\n'))
             soup.contents.append(NavigableString('\n```\n'))
         elif tag in ['code', 'tt']:
             # 判断code标签是否放在pre标签里面
@@ -144,15 +149,19 @@ class Parser(object):
             td = soup.contents[0].contents
             column_count = td.__len__()
             # 生成markdown表头
-            mthead = "\n| "
+            mthead = "| "
             for column in range(int(column_count)):
                 mthead += "--- |"
             mthead += '\n'
-            soup.contents.insert(1, NavigableString('%s' % mthead))
+            soup.contents.insert(0, NavigableString('%s' % mthead))
             pass
         elif tag == 'tr':
             self.remove_empty_lines(soup)
             soup.contents.append(NavigableString("|\n"))
+            pass
+        elif tag == 'th':
+            self.remove_empty_lines(soup)
+            soup.contents.insert(0, NavigableString(' | '))
             pass
         elif tag == 'td':
             soup.contents.insert(0, NavigableString(' | '))
@@ -202,6 +211,17 @@ class Parser(object):
                                   self.title + "/" + file_name)
         return code
 
+    def extract_language(self, soup):
+        """ 输入pre code span，分析其中有没有class标记了语言块 """
+        clazz = soup.get("class")
+        if 'language-sql' in clazz:
+            return 'sql'
+        elif 'language-java' in clazz:
+            return 'java'
+        child = soup.find('code')
+        if child is None:
+            return None
+        return self.extract_language(child)
 
 if __name__ == '__main__':
     # html = '<body><!-- cde --><h1>This is 1 &lt;= 2<!-- abc --> <b>title</b></h1><p><a href="www.hello.com">hello</a></p><b>test</b>'

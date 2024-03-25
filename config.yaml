@@ -37,7 +37,7 @@ config:
     # 是否保存文章true为保存，false则不保存文章
     save: true
     # 如果文章存在是否覆盖，true为覆盖，false为不覆盖
-    rewrite: false
+    rewrite: true
     # 是否在文章的末尾添加参考文章链接
     refer: true
   # 使用js动态加载的网站
