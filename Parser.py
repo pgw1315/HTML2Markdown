@@ -119,7 +119,7 @@ class Parser(object):
             soup.contents.insert(0, NavigableString('*'))
             soup.contents.append(NavigableString('*'))
         elif tag == 'pre':
-            soup.contents.insert(0, NavigableString('\n```bash\n'))
+            soup.contents.insert(0, NavigableString('\n```\n'))
             soup.contents.append(NavigableString('\n```\n'))
         elif tag in ['code', 'tt']:
             # 判断code标签是否放在pre标签里面

@@ -142,7 +142,7 @@ class PageDown():
                 title=title, date_time=date_time, categories="")
             content = head_format + content
         if self.markdown_toc:
-            content = '[toc_enable]\n' + content
+            content = '[toc]\n' + content
 
         # 添加参考文章
         if self.page_refer:
