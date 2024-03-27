@@ -11,6 +11,7 @@
 '''
 import datetime
 import os
+import platform
 import time
 from os.path import exists
 from urllib.parse import urljoin, urlparse
@@ -59,7 +60,16 @@ class Parser(object):
         self.soup = BeautifulSoup(self.html, 'html.parser')
         self.outputs = []
         self.equ_inline = False
-        self.page_img_dir = self.img_dir+"/"+title
+
+        title_dir = title
+        os_type = platform.system()
+        if os_type == "Windows":
+            # 文件名不能包含以下字符：< > : " / \ | ? *。
+            invalid_chars = '<>:"/\\|?*'
+            for char in invalid_chars:
+                title_dir = title_dir.replace(char, "-")
+        print(title_dir)
+        self.page_img_dir = self.img_dir + "/" + title_dir
         if not exists(self.page_img_dir):
             os.makedirs(self.page_img_dir)
         pass
