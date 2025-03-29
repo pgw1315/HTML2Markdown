@@ -14,6 +14,7 @@
 
 import os
 import datetime
+import platform
 from os.path import exists
 import re
 import sys
@@ -42,7 +43,7 @@ class PageDown():
         # 浏览器驱动路径
         self.webdriver_path = os.path.join(current_work_dir, 'chromedriver')
         # 判断是否为hexo文章
-        self.hexo_enable = self.cfg['hexo']['enable']
+        self.hexo_enable = self.cfg['hexo_enable']
         if self.hexo_enable:
             # Hexo博客文章
             self.md_dir = self.cfg['hexo']['post_dir']
@@ -50,8 +51,8 @@ class PageDown():
             self.hexo_head = self.cfg['hexo']['content']
         else:
             # 普通Markdown
-            self.md_dir = self.cfg['md_dir']
-            self.img_dir = self.cfg['image']['dir']
+            self.md_dir = self.cfg['markdown']['post_dir']
+            self.img_dir = self.cfg['markdown']['img_dir']
             self.hexo_head = ''
 
         self.page_rewrite = self.cfg['page']['rewrite']
@@ -61,6 +62,7 @@ class PageDown():
         self.adapters = self.cfg['adapters']
         # 使用浏览器加载页面
         self.js_load_list = self.cfg['js_load']
+        self.markdown_toc = self.cfg['markdown']['toc_enable']
 
     def __init__(self):
         self.init_config()
@@ -137,6 +139,8 @@ class PageDown():
             head_format = self.hexo_head.format(
                 title=title, date_time=date_time, categories="")
             content = head_format + content
+        if self.markdown_toc:
+            content = '[toc]\n' + content
 
         # 添加参考文章
         if self.page_refer:
@@ -146,6 +150,14 @@ class PageDown():
 
     def save(self, title, content):
         # MarkDown文件名
+        os_name = platform.system()
+        if os_name == "Windows":
+            # 文件名不能包含以下字符：< > : " / \ | ? *。
+            invalid_chars = '<>:"/\\|?*'
+            for char in invalid_chars:
+                title = title.replace(char, "-")
+        title = title.replace('\n', '')
+        title = title.replace('\t\n', '')
         md_file = self.md_dir + "/" + title + '.md'
         if exists(md_file) and not self.page_rewrite:
             print('文章已经存在: {}'.format(md_file))
@@ -153,7 +165,7 @@ class PageDown():
         print('保存Markdown文件到: {}'.format(md_file))
         try:
             # 保存文件
-            with open(md_file, 'w') as f:
+            with open(md_file, 'w', encoding='utf-8') as f:
                 # 写入文件
                 f.write(content)
         except Exception as e:
@@ -184,3 +196,4 @@ if __name__ == '__main__':
 
     pd = PageDown()
     pd.download_page(url)
+    os.startfile(pd.md_dir)

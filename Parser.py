@@ -9,16 +9,12 @@
 @说明 :  解析HTML
 
 '''
-import datetime
 import os
-import time
+import platform
 from os.path import exists
 from urllib.parse import urljoin, urlparse
 
-import httpx
-import requests
 from bs4 import BeautifulSoup, Tag, NavigableString, Comment
-
 
 from Utils import download_img, yaml_config_load
 
@@ -30,15 +26,16 @@ class Parser(object):
         config_path = os.path.join(current_work_dir, 'config.yaml')
         self.cfg = yaml_config_load(config_path).get('config')
         # 判断是否为hexo文章
-        self.hexo_enable = self.cfg['hexo']['enable']
+        self.hexo_enable = self.cfg['hexo_enable']
         if self.hexo_enable:
             # Hexo博客文章
             self.img_dir = self.cfg['hexo']['img_dir']
         else:
             # 普通Markdown
-            self.img_dir = self.cfg['image']['dir']
+            self.img_dir = self.cfg['markdown']['img_dir']
         # 图片src属性适配
         self.img_src_list = self.cfg['image']['src_list']
+        self.config_img_download = self.cfg['image']['download']
         pass
 
     def __init__(self, html, title, url=''):
@@ -58,7 +55,17 @@ class Parser(object):
         self.soup = BeautifulSoup(self.html, 'html.parser')
         self.outputs = []
         self.equ_inline = False
-        self.page_img_dir = self.img_dir+"/"+title
+        self.handler = HandlerFactory.getHandler(url)
+
+        os_name = platform.system()
+        if os_name == "Windows":
+            # 文件名不能包含以下字符：< > : " / \ | ? *。
+            invalid_chars = '<>:"/\\|?*'
+            for char in invalid_chars:
+                title = title.replace(char, "-")
+        title = title.replace('\n', '')
+        title = title.replace('\t\n', '')
+        self.page_img_dir = self.img_dir + "/" + title
         if not exists(self.page_img_dir):
             os.makedirs(self.page_img_dir)
         pass
@@ -89,7 +96,7 @@ class Parser(object):
             # 如果是忽略的标签直接跳过
             if soup.name in self.ignore_tags:
                 return
-            self.on_headle_elements(soup)
+            self.on_handle_elements(soup)
         # 判断是否还有子节点，如果没有直接退出
         if not hasattr(soup, 'children'):
             return
@@ -98,7 +105,7 @@ class Parser(object):
             self.recursive(child)
 
     # 处理HTML元素的解析
-    def on_headle_elements(self, soup):
+    def on_handle_elements(self, soup):
         tag = soup.name
         # 如果是忽略的标签直接跳过
         if tag in self.ignore_tags:
@@ -118,13 +125,10 @@ class Parser(object):
             soup.contents.insert(0, NavigableString('*'))
             soup.contents.append(NavigableString('*'))
         elif tag == 'pre':
-            soup.contents.insert(0, NavigableString('\n```bash\n'))
-            soup.contents.append(NavigableString('\n```\n'))
+            self.handler.handle_pre(soup)
+
         elif tag in ['code', 'tt']:
-            # 判断code标签是否放在pre标签里面
-            if soup.parent.name != "pre":
-                soup.contents.insert(0, NavigableString('`'))
-                soup.contents.append(NavigableString('`'))
+            self.handler.handle_code(soup)
         elif tag == 'p':
             if soup.parent.name != 'li':
                 soup.contents.insert(0, NavigableString('\n'))
@@ -132,10 +136,9 @@ class Parser(object):
 
             pass
         elif tag in ['ol', 'ul']:
-            soup.contents.insert(0, NavigableString('\n'))
-            soup.contents.append(NavigableString('\n'))
+            self.handler.handle_ol(soup)
         elif tag in ['li']:
-            soup.contents.insert(0, NavigableString('\n+ '))
+            self.handler.handle_li(soup)
         elif tag == 'tbody':
             self.remove_empty_lines(soup)
             self.remove_empty_lines(soup.contents[0])
@@ -143,16 +146,19 @@ class Parser(object):
             td = soup.contents[0].contents
             column_count = td.__len__()
             # 生成markdown表头
-            mthead = "\n| "
+            mthead = "| "
             for column in range(int(column_count)):
                 mthead += "--- |"
             mthead += '\n'
-            soup.contents.insert(1, NavigableString('%s' % mthead))
-
+            soup.contents.insert(0, NavigableString('%s' % mthead))
             pass
         elif tag == 'tr':
             self.remove_empty_lines(soup)
             soup.contents.append(NavigableString("|\n"))
+            pass
+        elif tag == 'th':
+            self.remove_empty_lines(soup)
+            soup.contents.insert(0, NavigableString(' | '))
             pass
         elif tag == 'td':
             soup.contents.insert(0, NavigableString(' | '))
@@ -160,8 +166,11 @@ class Parser(object):
         elif tag == 'img':
             code = self.process_img(soup)
             self.outputs.append('\n' + code)
+        elif tag == 'blockquote':
+            soup.contents.insert(0, NavigableString('> '))
+            soup.contents.append(NavigableString('\n'))
         elif tag == 'br':
-            soup.contents.insert(0, NavigableString('\n+ '))
+            soup.contents.insert(0, NavigableString('\n'))
         else:
             pass
         pass
@@ -183,34 +192,85 @@ class Parser(object):
         # 找不到图片
         if not img_url:
             return code
-        # 不下载图片，引用原图片
-        # if not config_img_download:
-        #     code = '![{}]({})'.format(alt, img_url)
-        #     return code
 
         # 下载图片
         o = urlparse(self.url)
-        host = o.scheme+"://"+o.hostname
+        host = o.scheme + "://" + o.hostname
         img_url = urljoin(host, img_url)
+
+        # 不下载图片，引用原图片
+        if not self.config_img_download:
+            code = '![{}]({})'.format(alt, img_url)
+            return code
+
         file_name = download_img(img_url, self.page_img_dir)
         code = '![{}]({})'.format(alt, "/images/" +
                                   self.title + "/" + file_name)
         return code
 
 
-if __name__ == '__main__':
-    # html = '<body><!-- cde --><h1>This is 1 &lt;= 2<!-- abc --> <b>title</b></h1><p><a href="www.hello.com">hello</a></p><b>test</b>'
-    html = """ 
-     <div>
-        <nav>
-            <ol>nanananna</ol>
-            
-        </nav>
-        <div>
-            内容
-        </div>
-     </div>
-     
-     """
-    parser = Parser(html, '')
-    print(''.join(parser.outputs))
+class HandlerFactory(object):
+    @staticmethod
+    def getHandler(url):
+        if 'csdn.net' in url:
+            return CSDNHandler()
+        else:
+            return Handler()
+
+class Handler(object):
+    def handle_pre(self, soup):
+        # 语言
+        language = self.extract_language(soup)
+        if language is None:
+            soup.contents.insert(0, NavigableString('\n```\n'))
+        else:
+            soup.contents.insert(0, NavigableString('\n```' + language + '\n'))
+        soup.contents.append(NavigableString('\n```\n'))
+
+    def handle_code(self,soup):
+        # 判断code标签是否放在pre标签里面
+        if soup.parent.name != "pre":
+            soup.contents.insert(0, NavigableString('`'))
+            soup.contents.append(NavigableString('`'))
+
+    def handle_ol(self, soup):
+        soup.contents.insert(0, NavigableString('\n'))
+        soup.contents.append(NavigableString('\n'))
+
+    def handle_li(self, soup):
+        parent = soup.parent
+        depth = -1
+        print(parent.name)
+        # 嵌套的列表项正确的缩进
+        while parent.name in ['ol', 'ul', 'li']:
+            if parent.name in ['ol', 'ul']:
+                depth = depth + 1
+            parent = parent.parent
+        indent = '\t' * depth
+        soup.contents.insert(0, NavigableString('\n' + indent + '+ '))
+
+    def extract_language(self, soup):
+        """ 输入pre code span，分析其中有没有class标记了语言块 """
+        clazz = soup.get("class")
+        if clazz is not None:
+            if 'language-sql' in clazz:
+                return 'sql'
+            elif 'language-java' in clazz:
+                return 'java'
+            elif 'language-cpp' in clazz:
+                return 'cpp'
+        child = soup.find('code')
+        if child is None:
+            return None
+        return self.extract_language(child)
+
+
+class CSDNHandler(Handler):
+    def handle_pre(self, soup):
+        # 语言
+        language = self.extract_language(soup)
+        if language is None:
+            soup.contents.insert(0, NavigableString('\n```\n'))
+        else:
+            soup.contents.insert(0, NavigableString('\n```' + language + '\n'))
+        soup.contents.append(NavigableString('```\n')) # 少一个换行

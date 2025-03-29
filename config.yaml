@@ -1,20 +1,14 @@
 # 配置文件
-config: 
-  md_dir: /Users/will/Downloads/Markdown
-  # webdriver_path: /Users/will/PycharmProjects/HTML2Markdown/chromedriver
-
-  # 图片相关
-  image: 
-    download: true
-    dir: /Users/will/Downloads/Markdown/images
-    src_list: 
-      - src
-      - data-original-src
-      - data-src
-
+config:
+  hexo_enable: false
+   # markdown相关
+  markdown:
+    post_dir: F://html2md
+    img_dir: F://html2md/images
+    # 是否添加TOC导航
+    toc_enable: True
   # hexo主题文章相关
-  hexo: 
-    enable: true
+  hexo:
     # 文章所在目录
     post_dir: /Users/will/Blog/pgw1315.github.io/source/_posts
     # 图片所在目录
@@ -29,17 +23,26 @@ config:
       tags:
         - Python
       ---
+
+  # 图片相关
+  image: 
+    download: false
+    src_list: 
+      - src
+      - data-original-src
+      - data-src
+
   # 页面的设置
   page: 
     # 是否保存文章true为保存，false则不保存文章
     save: true
     # 如果文章存在是否覆盖，true为覆盖，false为不覆盖
-    rewrite: false
+    rewrite: true
     # 是否在文章的末尾添加参考文章链接
     refer: true
   # 使用js动态加载的网站
   js_load:
-    - juejin.cn
+    - jueji2n.cn2
   # 站点适配器，对不同的网站的内容和标题进行适配
   adapters: 
     # CSND站点
@@ -86,4 +89,7 @@ config:
     - domain: ipcpu.com
       title: h1,class,article-title
       content: article,class,article-content
-    
+    # pdai.tech
+    - domain: pdai.tech
+      title: h1,class,header-anchor
+      content: div,class,theme-default-content
